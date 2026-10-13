@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F2EA">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Madureira">
+<title>Madureira Gestão</title>
+<style>
+:root{
+  --bg:#F7F2EA; --surface:#FFFDF9; --ink:#3B2A1E; --ink2:#7A6553; --muted:#A39079; --line:#EAE0D1;
+  --accent:#6F4E37; --accent-ink:#FFFDF9; --accent-soft:#EFE5D7;
+  --good:#4F7A4A; --good-soft:#E6EEDF; --bad:#A3452F; --bad-soft:#F5E3DC; --warn:#946519; --warn-soft:#F4EAD6;
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1D1712; --surface:#251E18; --ink:#F1E7DA; --ink2:#C6B4A0; --muted:#8E7D6B; --line:#372D25;
+    --accent:#D3AD84; --accent-ink:#1D1712; --accent-soft:#33291F;
+    --good:#8DBA85; --good-soft:#26301F; --bad:#E39A84; --bad-soft:#3A251E; --warn:#D9B06A; --warn-soft:#352B1C;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1D1712; --surface:#251E18; --ink:#F1E7DA; --ink2:#C6B4A0; --muted:#8E7D6B; --line:#372D25;
+  --accent:#D3AD84; --accent-ink:#1D1712; --accent-soft:#33291F;
+  --good:#8DBA85; --good-soft:#26301F; --bad:#E39A84; --bad-soft:#3A251E; --warn:#D9B06A; --warn-soft:#352B1C;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+header.top{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(14px + env(safe-area-inset-top)) 20px 10px;display:flex;align-items:center;gap:12px}
+.brand{flex:1}
+.brand b{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-.01em}
+.brand small{display:block;color:var(--muted);font-size:12px;letter-spacing:.04em}
+.iconbtn{width:42px;height:42px;border-radius:50%;border:0;background:transparent;color:var(--ink2);display:grid;place-items:center;position:relative}
+.iconbtn .dot{position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--bad)}
+main{max-width:560px;margin:0 auto;padding:4px 20px 200px}
+h2{font-family:var(--serif);font-size:26px;font-weight:600;margin:6px 0 2px;letter-spacing:-.01em}
+.sub{color:var(--ink2);font-size:14px;margin:0 0 18px}
+.sec{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin:28px 0 8px}
+.muted{color:var(--muted)}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bg);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{border:0;background:none;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;color:var(--muted);letter-spacing:.01em}
+nav.tabs button.on{color:var(--accent);font-weight:600}
+
+/* dia */
+.dayhead{display:flex;align-items:center;gap:6px;margin:4px 0 2px}
+.dayhead .lbl{flex:1}
+.dayhead .lbl small{display:block;font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.dayhead .lbl b{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-.01em}
+.arrow{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink2);font-size:20px;line-height:1}
+.arrow:disabled{opacity:.3}
+.state{font-size:13px;color:var(--muted);margin:0 0 16px}
+.state.ok{color:var(--good)}
+.state.pend{color:var(--warn)}
+
+.panel{background:var(--surface);border-radius:18px;padding:2px 16px;box-shadow:0 1px 0 var(--line)}
+.prod{padding:14px 0;border-bottom:1px solid var(--line)}
+.prod:last-child{border-bottom:0}
+.prod .r1{display:flex;align-items:center;gap:12px}
+.emo{flex:none;width:40px;height:40px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;font-size:20px;line-height:1}
+.prod .t{flex:1;min-width:0}
+.prod .nm{font-weight:600;font-size:15.5px}
+.prod .meta{font-size:13px;color:var(--ink2);margin-top:1px}
+.fezbtn{border:0;background:none;padding:2px 0;font-size:13px;color:var(--ink2);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.step{display:inline-flex;align-items:center;gap:4px}
+.step button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--accent);font-size:20px;line-height:1;display:grid;place-items:center}
+.step input{width:40px;height:38px;border:0;background:transparent;text-align:center;font-size:18px;font-weight:600;-moz-appearance:textfield;appearance:textfield}
+.step input::-webkit-inner-spin-button,.step input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.step.sm button{width:30px;height:30px;font-size:16px}
+.step.sm input{width:34px;height:30px;font-size:15px}
+.step input.zero{color:var(--muted);font-weight:500}
+.fezrow{display:flex;align-items:center;gap:10px;margin:10px 0 0 52px;font-size:13px;color:var(--ink2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0 52px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px;font-size:13px;color:var(--ink2);min-height:34px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chips.big{margin-left:0}
+.chips.big .chip{font-size:14.5px;padding:9px 14px;min-height:42px}
+.tag{display:inline-block;font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:999px;margin-left:6px;vertical-align:2px;letter-spacing:.02em}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tag.bad{background:var(--bad-soft);color:var(--bad)}
+.tag.mute{background:var(--accent-soft);color:var(--ink2)}
+.grp{margin:22px 0 8px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.prod.zero .nm{color:var(--ink2);font-weight:500}
+.prod.zero .emo{opacity:.55}
+.addbtn{border:1px dashed var(--line);background:none;border-radius:999px;padding:6px 12px;font-size:13px;color:var(--ink2)}
+
+.savebar{position:fixed;left:0;right:0;bottom:calc(62px + env(safe-area-inset-bottom));z-index:25;background:var(--bg);border-top:1px solid var(--line);padding:12px 20px}
+.savebar .in{max-width:560px;margin:0 auto;display:flex;gap:14px;align-items:center}
+.savebar .tot{flex:1;font-size:12.5px;color:var(--ink2);line-height:1.35}
+.savebar .tot b{display:block;font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink)}
+.btn{border:0;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-weight:600;padding:0 24px;min-height:48px;font-size:15.5px}
+.btn:disabled{background:var(--accent-soft);color:var(--muted)}
+.btn.block{width:100%}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--line)}
+
+/* forms */
+.card{background:var(--surface);border-radius:18px;padding:18px 16px;margin-bottom:12px;box-shadow:0 1px 0 var(--line)}
+label.f{display:block;font-size:13px;color:var(--ink2);font-weight:600;margin:18px 0 8px}
+label.f:first-child{margin-top:0}
+.inp{width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px;background:var(--bg);padding:10px 12px;font-size:16px}
+.money{display:flex;align-items:baseline;gap:6px;border-bottom:1.5px solid var(--line);padding:4px 2px 6px}
+.money span{font-family:var(--serif);font-size:24px;color:var(--muted)}
+.money input{flex:1;border:0;background:transparent;font-family:var(--serif);font-size:38px;font-weight:600;padding:0;min-width:0;outline:0}
+.money:focus-within{border-color:var(--accent)}
+.inp:focus,.step input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-radius:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.list .it{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.list .it:last-child{border-bottom:0}
+.list .it .t{flex:1;min-width:0}
+.list .it .t small{display:block;color:var(--muted);font-size:12.5px}
+.list .it .v{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.xbtn{border:0;background:none;color:var(--muted);min-width:44px;min-height:40px;font-size:12.5px}
+.xbtn.armed{color:var(--bad);font-weight:600}
+.emopick{display:flex;flex-wrap:wrap;gap:6px}
+.emopick button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);font-size:19px;line-height:1}
+.emopick button.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent)}
+
+/* resumo */
+.seg{display:flex;gap:4px;margin:0 0 18px;overflow-x:auto}
+.seg button{border:0;background:transparent;border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:500;color:var(--ink2);white-space:nowrap;min-height:38px}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.hero small{color:var(--ink2);font-size:13px}
+.hero .big{font-family:var(--serif);font-size:44px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin:2px 0 4px}
+.hero .note{font-size:12.5px;color:var(--muted)}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.trio div{padding:12px 0 12px 12px;border-left:1px solid var(--line)}
+.trio div:first-child{border-left:0;padding-left:0}
+.trio small{display:block;color:var(--muted);font-size:12px}
+.trio b{font-weight:600;font-size:15.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.chartcap{font-size:13.5px;color:var(--ink2);min-height:20px;margin-bottom:8px}
+.chartcap b{color:var(--ink)}
+svg.chart{width:100%;height:auto;display:block}
+svg.chart .bar{fill:var(--accent)}
+svg.chart .bar.dim{opacity:.3}
+svg.chart .hit{fill:transparent}
+svg.chart .base{stroke:var(--line);stroke-width:1}
+.axis{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:6px}
+.aviso{display:flex;gap:12px;padding:12px 0;font-size:14px;border-bottom:1px solid var(--line);color:var(--ink)}
+.aviso:last-child{border-bottom:0}
+.aviso .ic{flex:none;width:8px;height:8px;border-radius:50%;margin-top:7px}
+.aviso.warn .ic{background:var(--warn)} .aviso.good .ic{background:var(--good)} .aviso.bad .ic{background:var(--bad)}
+.hbar{height:4px;border-radius:2px;background:var(--accent-soft);margin-top:6px;overflow:hidden}
+.hbar i{display:block;height:100%;background:var(--accent);border-radius:2px}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:2px 0;text-decoration:underline;text-underline-offset:3px;font-size:inherit}
+details.how{margin-top:24px;font-size:13.5px;color:var(--ink2)}
+details.how summary{cursor:pointer;font-weight:600;color:var(--ink);min-height:36px;display:flex;align-items:center}
+.neg{color:var(--bad)} .pos{color:var(--good)}
+.empty{text-align:center;color:var(--muted);padding:28px 8px 8px;font-size:14px}
+.empty .e{font-size:30px;display:block;margin-bottom:6px}
+
+/* produtos */
+.pl{display:flex;align-items:center;gap:12px;padding:13px 0;border:0;border-bottom:1px solid var(--line);background:none;width:100%;text-align:left}
+.panel .pl:last-child{border-bottom:0}
+.pl .t{flex:1;min-width:0}
+.pl .t b{font-size:15.5px;font-weight:600}
+.pl .t small{display:block;color:var(--ink2);font-size:12.5px}
+.pl .m{font-size:13px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.pl.off{opacity:.5}
+.switch{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:14.5px}
+.switch input{width:20px;height:20px;accent-color:var(--accent)}
+
+.toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:500;font-size:14.5px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:calc(100% - 40px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><b>Madureira</b><small>PÃES E DOCES</small></div>
+  <button class="iconbtn" id="btnMais" aria-label="Cópia de segurança e opções">
+    <svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>
+    <span class="dot" id="dotBackup" hidden></span>
+  </button>
+</header>
+
+<main id="view"></main>
+<div class="savebar" id="savebar" hidden></div>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="dia"><svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4 4L19 7"/></svg>Fechar o dia</button>
+  <button data-tab="gasto"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Gasto</button>
+  <button data-tab="resumo"><svg class="i" viewBox="0 0 24 24"><path d="M5 19V11M12 19V5M19 19v-6"/></svg>Resumo</button>
+  <button data-tab="produtos"><svg class="i" viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Produtos</button>
+</nav>
+<div class="toast" id="toast"></div>
+<input type="file" id="fileRestore" accept=".json,application/json" hidden>
+
+<script>
+/* ===== Dados da planilha "Controle de Custos – Madureira Pães e Doces" ===== */
+const KEY = 'madureira_gestao_v2';
+const CATS = [['mp','Matéria-prima'],['emb','Embalagem'],['contas','Luz, água, gás'],['aluguel','Aluguel'],['outros','Outros']];
+const MOTIVOS = [['nv','Não vendeu'],['venc','Venceu'],['estr','Estragou']];
+const EMOJIS = ['🥐','🥖','🍞','🥟','🫓','🥪','🍔','🌭','🍩','🍪','🍮','🍰','🥧','🥨','🌽','🧀'];
+// [emoji, nome, produção padrão/dia, custo unitário, preço de venda]  — null = ainda não informado
+const PI = [
+  ['🥟','Coxinha',10,2.75,6],['🥐','Croissant',4,3.05,6],['🥟','Enroladinho',40,1.2,1.5],['🫓','Fogazza',6,3.05,null],
+  ['🍔','Hambúrguer',2,3,6],['🫓','Esfiha',2,3.05,null],['🥪','Bauru',2,3,6.5],['🌭','Hot dog',2,3.15,6.5],
+  ['🥪','Lanche de frango',4,2.1,4],['🥪','Misto',4,3.35,4],['🥨','Língua de sogra',3,3.8,7.5],['🍩','Rosca de chocolate',4,3.35,4.5],
+  ['🍩','Rosca de açúcar',4,2.35,3.5],['🍩','Sonho pequeno',6,2.25,3],['🍩','Sonho grande',3,3.05,6],['🍪','Lua de mel',12,2.05,3],
+  ['🍮','Pudim',9,4.2,6.9],['🧀','Bisnaga de queijo',3,1.6,3.4],['🍞','Pão carteira',3,1.65,1.9],['🍞','Sovadinho',3,1.5,1.9],
+  ['🥖','Bisnaga',8,1.35,1.9],['🍞','Pão de leite',8,1.65,1.9],['🍞','Torrada (saco)',8,1.5,null],['🍰','Bolo de fubá',3,2.55,6],
+  ['🌽','Broa',0,null,3.5],['🥧','Torta',0,null,null]
+];
+
+/* ===== Utilidades ===== */
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const pd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+const addD = (s,n) => { const d = pd(s); d.setDate(d.getDate()+n); return ymd(d); };
+const HOJE = () => ymd(new Date());
+const brl = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const n2 = v => (v==null ? '' : String(v).replace('.',','));
+const uid = () => Math.random().toString(36).slice(2,10);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function num(v){
+  if (v==null) return null; v = String(v).trim(); if (!v) return null;
+  if (v.includes(',')) v = v.replace(/\./g,'').replace(',','.');
+  const n = parseFloat(v); return isNaN(n) ? null : n;
+}
+const semana = s => { const w = pd(s).toLocaleDateString('pt-BR',{weekday:'long'}); return w.charAt(0).toUpperCase()+w.slice(1); };
+const ddmm = s => { const d = pd(s); return pad(d.getDate())+'/'+pad(d.getMonth()+1); };
+const curto = s => pd(s).toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','')+' '+ddmm(s);
+const longo = s => pd(s).toLocaleDateString('pt-BR',{day:'numeric',month:'long'});
+let toastT;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('show'), 2600); }
+
+/* ===== Armazenamento (fica no próprio aparelho) ===== */
+let memoria = null;
+function load(){ try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : null; } catch(e){ return memoria; } }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){ memoria = S; toast('Atenção: este navegador não está guardando os dados'); } }
+function novoEstado(){
+  return { v:2, produtos: PI.map((p,i)=>({id:'p'+(i+1), emoji:p[0], nome:p[1], padrao:p[2], custo:p[3], preco:p[4], ativo:true})),
+           dias:{}, gastos:[], lastBackup:null };
+}
+let S = load();
+if (!S){ S = novoEstado(); save(); }
+const P = id => S.produtos.find(p=>p.id===id);
+
+let tab = 'dia', diaSel = HOJE(), periodo = '7d', gastoCat = null, prodEdit = null, emojiSel = null;
+const drafts = {}, fezAberto = new Set();
+
+/* ===== Cálculos ===== */
+function calcIt(pid, it){
+  const p = P(pid) || {};
+  const pr = it.preco ?? p.preco ?? null, cu = it.custo ?? p.custo ?? null;
+  const vend = Math.max(0,(it.fez||0)-(it.sobra||0));
+  return { vend, rec: vend*(pr||0), cpv: vend*(cu||0), perda: (it.sobra||0)*(cu||0), semPreco: pr==null };
+}
+function totDia(itens){ let rec=0, perda=0; for (const k in itens){ const c = calcIt(k,itens[k]); rec+=c.rec; perda+=c.perda; } return {rec, perda}; }
+
+/* ===== Rascunho do dia ===== */
+function getDraft(d){
+  if (!drafts[d]){
+    const rec = S.dias[d], it = {};
+    if (rec) for (const k in rec.itens) it[k] = {...rec.itens[k]};
+    S.produtos.forEach(p=>{ if (p.ativo && !it[p.id]) it[p.id] = {fez: rec ? 0 : p.padrao, sobra:0, motivo:null}; });
+    drafts[d] = {itens:it, dirty:false};
+  }
+  return drafts[d];
+}
+function salvarDia(){
+  const dr = getDraft(diaSel), old = S.dias[diaSel], itens = {};
+  for (const k in dr.itens){
+    const it = dr.itens[k]; if (!it.fez) continue;
+    const p = P(k) || {}, o = old && old.itens[k];
+    itens[k] = {fez:it.fez, sobra:it.sobra||0, motivo: it.sobra ? (it.motivo||'nv') : null,
+                preco: (o && o.preco!=null) ? o.preco : (p.preco ?? null),
+                custo: (o && o.custo!=null) ? o.custo : (p.custo ?? null)};
+  }
+  S.dias[diaSel] = {itens, salvoEm:Date.now()};
+  save(); delete drafts[diaSel]; fezAberto.clear();
+  toast('Dia salvo · vendas de ' + brl(totDia(itens).rec));
+  render();
+}
+
+/* ===== Render ===== */
+function render(){
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+  $('#dotBackup').hidden = !precisaBackup();
+  const v = $('#view');
+  v.innerHTML = tab==='dia' ? viewDia() : tab==='gasto' ? viewGasto() : tab==='resumo' ? viewResumo() : tab==='produtos' ? viewProdutos() : viewMais();
+  renderSavebar();
+  if ($('#cap')) setCap(null);
+}
+
+/* ----- Fechar o dia ----- */
+function stepper(f, id, val, sm){
+  return `<div class="step${sm?' sm':''}"><button data-act="dec" data-f="${f}" data-id="${id}" aria-label="menos">−</button><input class="${val?'':'zero'}" type="number" inputmode="numeric" min="0" value="${val}" data-f="${f}" data-id="${id}" aria-label="${f==='sobra'?'Sobrou':'Fez'}"><button data-act="inc" data-f="${f}" data-id="${id}" aria-label="mais">+</button></div>`;
+}
+function rowHTML(id, it){
+  const p = P(id) || {nome:'(produto removido)', emoji:'🍞'};
+  const c = calcIt(id, it);
+  if (!it.fez && !fezAberto.has(id)){
+    return `<div class="prod zero" data-row="${id}"><div class="r1"><span class="emo">${p.emoji||'🍞'}</span><div class="t"><div class="nm">${esc(p.nome)}</div></div><button class="addbtn" data-act="abrirFez" data-id="${id}">+ fiz hoje</button></div></div>`;
+  }
+  const meta = `<button class="fezbtn" data-act="abrirFez" data-id="${id}">fez ${it.fez||0}</button> · vendeu ${c.vend}${c.semPreco ? '' : ' · '+brl(c.rec)}`;
+  let extra = '';
+  if (fezAberto.has(id)) extra += `<div class="fezrow">Quantos fez ${stepper('fez',id,it.fez||0,true)}</div>`;
+  if (it.fez && it.sobra){
+    const m = it.motivo || 'nv';
+    extra += `<div class="chips">${MOTIVOS.map(([k,l])=>`<button class="chip${m===k?' on':''}" data-act="mot" data-id="${id}" data-m="${k}">${l}</button>`).join('')}</div>`;
+  }
+  return `<div class="prod${it.fez?'':' zero'}" data-row="${id}"><div class="r1"><span class="emo">${p.emoji||'🍞'}</span>
+    <div class="t"><div class="nm">${esc(p.nome)}${c.semPreco?'<span class="tag warn">sem preço</span>':''}</div><div class="meta">${meta}</div></div>
+    ${it.fez ? stepper('sobra',id,it.sobra||0) : ''}</div>${extra}</div>`;
+}
+function viewDia(){
+  const d = diaSel, rec = S.dias[d], dr = getDraft(d), hoje = HOJE();
+  const ordem = k => S.produtos.findIndex(p=>p.id===k);
+  const ids = Object.keys(dr.itens).sort((a,b)=>ordem(a)-ordem(b));
+  const feitos = ids.filter(k=>dr.itens[k].fez>0 || fezAberto.has(k)), zero = ids.filter(k=>!dr.itens[k].fez && !fezAberto.has(k));
+  const st = rec ? (dr.dirty ? '<p class="state pend">Alterações ainda não salvas</p>' : '<p class="state ok">✓ Dia salvo. Pode ajustar e salvar de novo.</p>')
+                 : '<p class="state">Já vem com a produção de sempre. Marque só o que <b>sobrou</b>.</p>';
+  return `<div class="dayhead">
+      <div class="lbl"><small>${d===hoje?'Hoje · ':''}${semana(d)}</small><b>${longo(d)}</b></div>
+      <button class="arrow" data-act="prev" aria-label="Dia anterior">‹</button>
+      <button class="arrow" data-act="next" aria-label="Próximo dia" ${d>=hoje?'disabled':''}>›</button></div>
+    ${st}
+    <div class="sec" style="margin-top:6px;display:flex;justify-content:space-between"><span>Produto</span><span>Sobrou</span></div>
+    <div class="panel">${feitos.map(k=>rowHTML(k, dr.itens[k])).join('') || '<div class="empty">Nenhum produto feito neste dia.</div>'}</div>
+    ${zero.length ? `<div class="grp">Não fez hoje</div><div class="panel">${zero.map(k=>rowHTML(k, dr.itens[k])).join('')}</div>` : ''}`;
+}
+function renderSavebar(){
+  const sb = $('#savebar');
+  if (tab!=='dia'){ sb.hidden = true; return; }
+  const dr = getDraft(diaSel), rec = S.dias[diaSel], t = totDia(dr.itens), pode = !rec || dr.dirty;
+  sb.hidden = false;
+  sb.innerHTML = `<div class="in"><div class="tot">Vendas do dia<b>${brl(t.rec)}</b>${t.perda ? 'Perdas com sobras: '+brl(t.perda) : 'Sem perdas'}</div>
+    <button class="btn" data-act="salvar" ${pode?'':'disabled'}>${rec ? (dr.dirty ? 'Salvar alterações' : 'Salvo ✓') : 'Salvar dia'}</button></div>`;
+}
+function redesenharDia(){ const y = scrollY; $('#view').innerHTML = viewDia(); scrollTo(0,y); renderSavebar(); }
+function mudarQtd(id, f, val){
+  const dr = getDraft(diaSel), it = dr.itens[id]; if (!it) return;
+  val = Math.max(0, Math.min(999, Math.round(val||0)));
+  if (f==='sobra') val = Math.min(val, it.fez||0);
+  it[f] = val;
+  if (f==='fez' && (it.sobra||0) > it.fez) it.sobra = it.fez;
+  if (!it.sobra) it.motivo = null;
+  dr.dirty = true;
+  const row = document.querySelector(`[data-row="${id}"]`); if (row) row.outerHTML = rowHTML(id, it);
+  const st = document.querySelector('.state');
+  if (st && S.dias[diaSel]) { st.className = 'state pend'; st.textContent = 'Alterações ainda não salvas'; }
+  renderSavebar();
+}
+
+/* ----- Gasto ----- */
+const catNome = k => (CATS.find(c=>c[0]===k)||[,'Outros'])[1];
+function viewGasto(){
+  const ult = [...S.gastos].sort((a,b)=>b.data.localeCompare(a.data)).slice(0,15);
+  return `<h2>Lançar gasto</h2><p class="sub">Compras, contas e qualquer dinheiro que saiu.</p>
+  <div class="card">
+    <label class="f" for="gValor">Quanto foi?</label>
+    <div class="money"><span>R$</span><input id="gValor" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+    <label class="f">Com o quê?</label>
+    <div class="chips big">${CATS.map(([k,l])=>`<button class="chip${gastoCat===k?' on':''}" data-act="cat" data-c="${k}">${l}</button>`).join('')}</div>
+    <label class="f" for="gDesc">Detalhe <span class="muted" style="font-weight:400">(opcional)</span></label>
+    <input id="gDesc" class="inp" type="text" placeholder="Ex.: farinha e óleo">
+    <label class="f" for="gData">Data</label>
+    <input id="gData" class="inp" type="date" value="${HOJE()}" max="${HOJE()}">
+    <div style="margin-top:20px"><button class="btn block" data-act="lancar">Lançar gasto</button></div>
+  </div>
+  <div class="sec">Últimos gastos</div>
+  <div class="card list" style="padding:4px 16px">${ult.length ? ult.map(g=>`<div class="it"><div class="t">${esc(catNome(g.cat))}<small>${ddmm(g.data)}${g.desc?' · '+esc(g.desc):''}</small></div><div class="v">${brl(g.valor)}</div><button class="xbtn" data-act="delGasto" data-id="${g.id}">Apagar</button></div>`).join('') : '<div class="empty" style="padding:18px 0">Nenhum gasto lançado ainda.</div>'}</div>`;
+}
+
+/* ----- Resumo ----- */
+function rangeDe(per){
+  const h = HOJE(), d = pd(h);
+  if (per==='hoje') return [h,h];
+  if (per==='7d') return [addD(h,-6),h];
+  if (per==='mes') return [ymd(new Date(d.getFullYear(),d.getMonth(),1)),h];
+  return [ymd(new Date(d.getFullYear(),d.getMonth()-1,1)), ymd(new Date(d.getFullYear(),d.getMonth(),0))];
+}
+function diasEntre(a,b){ const out=[]; for (let s=a; s<=b; s=addD(s,1)) out.push(s); return out; }
+function agregar(a,b){
+  const R = {rec:0, perda:0, gastos:0, porProd:{}, porDia:{}, porCat:{}, fechados:0};
+  diasEntre(a,b).forEach(d=>{
+    const rec = S.dias[d]; if (!rec) return;
+    R.fechados++; let rd = 0;
+    for (const k in rec.itens){
+      const c = calcIt(k, rec.itens[k]); R.rec += c.rec; R.perda += c.perda; rd += c.rec;
+      const pp = R.porProd[k] = R.porProd[k] || {lucro:0, perda:0, sobra:0, vend:0, rec:0};
+      pp.lucro += c.rec - c.cpv - c.perda; pp.perda += c.perda; pp.sobra += rec.itens[k].sobra||0; pp.vend += c.vend; pp.rec += c.rec;
+    }
+    R.porDia[d] = rd;
+  });
+  S.gastos.forEach(g=>{ if (g.data>=a && g.data<=b){ R.gastos += g.valor; R.porCat[g.cat] = (R.porCat[g.cat]||0) + g.valor; } });
+  return R;
+}
+function barPath(x,y,w,h,r){ r = Math.min(r,w/2,h); return `M${x},${y+h}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h}Z`; }
+let chartDias = [], chartVals = [];
+function chartHTML(dias, vals){
+  chartDias = dias; chartVals = vals;
+  const W = 320, H = 110, n = dias.length, bw = W/n, max = Math.max(1, ...vals.filter(v=>v!=null));
+  let s = '';
+  dias.forEach((d,i)=>{ const v = vals[i]; if (v){ const h = Math.max(2, v/max*(H-4)), w = Math.max(bw-3,2); s += `<path class="bar" data-b="${i}" d="${barPath(i*bw+1.5,H-h,w,h,4)}"/>`; } });
+  dias.forEach((d,i)=>{ s += `<rect class="hit" x="${i*bw}" y="0" width="${bw}" height="${H}" data-i="${i}"/>`; });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H+1}" role="img" aria-label="Vendas por dia">${s}<line class="base" x1="0" x2="${W}" y1="${H+.5}" y2="${H+.5}"/></svg>`;
+}
+function setCap(i){
+  const cap = $('#cap'); if (!cap) return;
+  document.querySelectorAll('svg.chart .bar').forEach(b=>b.classList.toggle('dim', i!=null && chartVals[i]!=null && +b.dataset.b!==i));
+  if (i==null){ const v = chartVals.filter(x=>x), m = v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0;
+    cap.innerHTML = `Média por dia fechado: <b>${brl(m)}</b>`; return; }
+  const v = chartVals[i];
+  cap.innerHTML = `${curto(chartDias[i])}: ${v==null ? '<span class="muted">dia não fechado</span>' : '<b>'+brl(v)+'</b>'}`;
+}
+function diaPadrao(){
+  let rec=0, cus=0; const fora = [];
+  S.produtos.filter(p=>p.ativo && p.padrao>0).forEach(p=>{
+    if (p.preco==null || p.custo==null){ fora.push(p.nome); return; }
+    rec += p.padrao*p.preco; cus += p.padrao*p.custo;
+  });
+  return {rec, cus, lucro:rec-cus, margem: rec ? (rec-cus)/rec : 0, fora};
+}
+function avisos(){
+  const out = [], datas = Object.keys(S.dias).sort().slice(-14);
+  S.produtos.filter(p=>p.ativo && p.padrao>0).forEach(p=>{
+    let n=0, dSobra=0, sFez=0, sSobra=0, sVend=0;
+    datas.forEach(d=>{ const it = S.dias[d].itens[p.id]; if (!it || !it.fez) return; n++; sFez+=it.fez; sSobra+=it.sobra||0; sVend+=it.fez-(it.sobra||0); if (it.sobra) dSobra++; });
+    if (n<5) return;
+    const pct = sSobra/sFez, mv = sVend/n, ms = sSobra/n;
+    if (dSobra/n >= .5 && pct >= .15){
+      const sug = Math.ceil(mv);
+      out.push({tipo:'warn', peso:pct, txt:`<b>${esc(p.nome)}</b> sobrou em ${dSobra} de ${n} dias (média de ${ms.toFixed(1).replace('.',',')} por dia).${sug < p.padrao ? ` Experimente fazer <b>${sug}</b> em vez de ${p.padrao}.` : ''}`});
+    } else if (dSobra===0) out.push({tipo:'good', peso:0, txt:`<b>${esc(p.nome)}</b> acabou em todos os ${n} dias. Talvez dê para fazer um pouco mais.`});
+  });
+  out.sort((a,b)=>b.peso-a.peso);
+  const res = out.slice(0,5);
+  S.produtos.filter(p=>p.ativo && p.preco!=null && p.custo!=null && p.preco < p.custo)
+    .forEach(p=>res.unshift({tipo:'bad', txt:`<b>${esc(p.nome)}</b> é vendido abaixo do custo (${brl(p.preco)} × custo ${brl(p.custo)}).`}));
+  const baixa = S.produtos.filter(p=>p.ativo && p.preco && p.custo!=null && p.preco>=p.custo && (p.preco-p.custo)/p.preco < .2);
+  if (baixa.length) res.push({tipo:'warn', txt:`Margem abaixo de 20%: ${baixa.map(p=>`<b>${esc(p.nome)}</b> (${Math.round((p.preco-p.custo)/p.preco*100)}%)`).join(', ')}. Sobra pouco por unidade vendida — vale rever preço ou custo.`});
+  const semPreco = S.produtos.filter(p=>p.ativo && p.preco==null).map(p=>esc(p.nome));
+  const semCusto = S.produtos.filter(p=>p.ativo && p.custo==null).map(p=>esc(p.nome));
+  if (semPreco.length) res.push({tipo:'warn', txt:`Falta o preço de venda de ${semPreco.join(', ')}. Sem ele, essas vendas não entram na conta. <button class="linkbtn" data-act="irProdutos">Preencher</button>`});
+  if (semCusto.length) res.push({tipo:'warn', txt:`Falta o custo de ${semCusto.join(', ')}. <button class="linkbtn" data-act="irProdutos">Preencher</button>`});
+  return res;
+}
+function viewResumo(){
+  const [a,b] = rangeDe(periodo), R = agregar(a,b), saldo = R.rec - R.gastos, temDados = Object.keys(S.dias).length || S.gastos.length;
+  const segs = [['hoje','Hoje'],['7d','7 dias'],['mes','Este mês'],['mesp','Mês passado']];
+  let h = `<h2>Resumo</h2><p class="sub">Como está o caixa e o que dá mais resultado.</p>
+    <div class="seg">${segs.map(([k,l])=>`<button class="${periodo===k?'on':''}" data-act="per" data-p="${k}">${l}</button>`).join('')}</div>`;
+  if (!temDados){
+    h += `<div class="card"><div class="empty" style="padding:6px 0"><span class="e">🥐</span>Ainda não há dias fechados.<br>Feche o primeiro dia para o resumo aparecer aqui.</div></div>`;
+  } else {
+    h += `<div class="hero"><small>Sobrou no caixa</small><div class="big ${saldo<0?'neg':''}">${brl(saldo)}</div>
+      <div class="note">Vendas menos gastos · ${ddmm(a)}${a!==b?' a '+ddmm(b):''} · ${R.fechados} dia(s) fechado(s)</div></div>
+      <div class="trio"><div><small>Vendas</small><b>${brl(R.rec)}</b></div><div><small>Gastos</small><b>${brl(R.gastos)}</b></div><div><small>Perdas</small><b>${brl(R.perda)}</b></div></div>`;
+    if (periodo!=='hoje' && R.fechados){
+      const dias = diasEntre(a,b), vals = dias.map(d=>S.dias[d] ? R.porDia[d] : null);
+      h += `<div class="sec">Vendas por dia</div><div class="card"><div class="chartcap" id="cap"></div>${chartHTML(dias,vals)}<div class="axis"><span>${ddmm(a)}</span><span>${ddmm(b)}</span></div></div>`;
+    }
+    const prods = Object.entries(R.porProd);
+    if (prods.length){
+      const top = prods.filter(([k])=>!calcIt(k,{fez:1}).semPreco).sort((x,y)=>y[1].lucro-x[1].lucro).slice(0,5), mx = Math.max(1,...top.map(t=>t[1].lucro));
+      h += `<div class="sec">Mais lucro no período</div><div class="card list" style="padding:4px 16px">${top.map(([k,v])=>`<div class="it"><span class="emo">${(P(k)||{}).emoji||'🍞'}</span><div class="t">${esc((P(k)||{}).nome||k)}<small>vendeu ${v.vend}</small><div class="hbar"><i style="width:${Math.max(2,v.lucro/mx*100)}%"></i></div></div><div class="v ${v.lucro<0?'neg':''}">${brl(v.lucro)}</div></div>`).join('')}</div>`;
+      const sob = prods.filter(([,v])=>v.sobra>0).sort((x,y)=>y[1].perda-x[1].perda).slice(0,5);
+      if (sob.length) h += `<div class="sec">O que mais sobrou</div><div class="card list" style="padding:4px 16px">${sob.map(([k,v])=>`<div class="it"><span class="emo">${(P(k)||{}).emoji||'🍞'}</span><div class="t">${esc((P(k)||{}).nome||k)}<small>${v.sobra} unidade(s)</small></div><div class="v neg">−${brl(v.perda)}</div></div>`).join('')}</div>`;
+    }
+    const cats = Object.entries(R.porCat).sort((x,y)=>y[1]-x[1]);
+    if (cats.length){ const mx = cats[0][1];
+      h += `<div class="sec">Para onde foi o dinheiro</div><div class="card list" style="padding:4px 16px">${cats.map(([k,v])=>`<div class="it"><div class="t">${catNome(k)}<div class="hbar"><i style="width:${v/mx*100}%"></i></div></div><div class="v">${brl(v)}</div></div>`).join('')}</div>`; }
+  }
+  const dp = diaPadrao();
+  h += `<div class="sec">Um dia normal, se vender tudo</div><div class="card list" style="padding:4px 16px">
+    <div class="it"><div class="t">Faturamento</div><div class="v">${brl(dp.rec)}</div></div>
+    <div class="it"><div class="t">Custo de produção</div><div class="v">${brl(dp.cus)}</div></div>
+    <div class="it"><div class="t"><b>Lucro bruto</b><small>margem média de ${Math.round(dp.margem*100)}%</small></div><div class="v pos">${brl(dp.lucro)}</div></div>
+    ${dp.fora.length ? `<div class="it"><div class="t"><small>Fora da conta por falta de preço ou custo: ${dp.fora.map(esc).join(', ')}.</small></div></div>` : ''}</div>`;
+  const av = avisos();
+  if (av.length) h += `<div class="sec">Atenção</div><div class="card" style="padding:4px 16px">${av.map(x=>`<div class="aviso ${x.tipo}"><span class="ic"></span><div>${x.txt}</div></div>`).join('')}</div>`;
+  h += `<details class="how"><summary>Como as contas são feitas</summary>
+    <p><b>Vendas</b> = (quantidade feita − sobra) × preço de venda.</p>
+    <p><b>Perdas</b> = sobra × custo de produção do item.</p>
+    <p><b>Sobrou no caixa</b> = vendas − gastos lançados: o que entrou menos o que saiu.</p>
+    <p><b>Lucro por produto</b> = vendas − custo do que foi vendido − perdas. Usa o custo estimado de cada item para comparar produtos; não é descontado de novo do caixa, porque a compra de matéria-prima já entra como gasto.</p></details>`;
+  return h;
+}
+
+/* ----- Produtos ----- */
+function viewProdutos(){
+  let h = `<h2>Produtos</h2><p class="sub">Preço, custo e quanto costuma fazer por dia. Toque para editar.</p>`;
+  if (prodEdit==='novo') h += formProd({id:null, emoji:'🥐', nome:'', preco:null, custo:null, padrao:0, ativo:true});
+  else h += `<button class="btn ghost block" data-act="novoProd" style="margin-bottom:14px">+ Novo produto</button>`;
+  h += `<div class="panel">`;
+  S.produtos.forEach(p=>{
+    if (prodEdit===p.id){ h += `</div>${formProd(p)}<div class="panel">`; return; }
+    const m = (p.preco!=null && p.custo!=null && p.preco>0) ? (p.preco-p.custo)/p.preco : null;
+    const tag = p.preco==null ? '<span class="tag warn">sem preço</span>' : p.custo==null ? '<span class="tag warn">sem custo</span>' : (m<0 ? '<span class="tag bad">prejuízo</span>' : '');
+    h += `<button class="pl${p.ativo?'':' off'}" data-act="editProd" data-id="${p.id}"><span class="emo">${p.emoji||'🍞'}</span><div class="t"><b>${esc(p.nome)}</b>${tag}${p.ativo?'':'<span class="tag mute">pausado</span>'}
+      <small>${p.preco!=null?brl(p.preco):'—'} · custo ${p.custo!=null?brl(p.custo):'—'} · faz ${p.padrao}/dia</small></div>
+      <div class="m ${m!=null&&m<0?'neg':''}">${m!=null ? Math.round(m*100)+'%' : ''}</div></button>`;
+  });
+  h += `</div><p class="sub" style="margin-top:14px">% = margem: quanto do preço sobra depois de pagar o custo de produção.</p>`;
+  return h.replace(/<div class="panel"><\/div>/g,'');
+}
+function formProd(p){
+  emojiSel = emojiSel || p.emoji || '🍞';
+  return `<div class="card" id="formProd">
+    <label class="f">Ícone</label><div class="emopick">${EMOJIS.map(e=>`<button class="${e===emojiSel?'on':''}" data-act="emoji" data-e="${e}">${e}</button>`).join('')}</div>
+    <label class="f" for="fNome">Nome</label><input id="fNome" class="inp" value="${esc(p.nome)}">
+    <div class="row2"><div><label class="f" for="fPreco">Preço de venda</label><input id="fPreco" class="inp" inputmode="decimal" value="${n2(p.preco)}" placeholder="R$ 0,00"></div>
+    <div><label class="f" for="fCusto">Custo para fazer</label><input id="fCusto" class="inp" inputmode="decimal" value="${n2(p.custo)}" placeholder="R$ 0,00"></div></div>
+    <label class="f" for="fPadrao">Quantos faz num dia normal</label><input id="fPadrao" class="inp" type="number" inputmode="numeric" min="0" value="${p.padrao||0}">
+    <label class="switch"><input type="checkbox" id="fAtivo" ${p.ativo?'checked':''}> Aparece no fechamento do dia</label>
+    <div class="row2" style="margin-top:20px"><button class="btn ghost" data-act="cancelProd">Cancelar</button><button class="btn" data-act="salvarProd" data-id="${p.id||''}">Salvar</button></div>
+  </div>`;
+}
+
+/* ----- Mais / backup ----- */
+function precisaBackup(){
+  if (!Object.keys(S.dias).length && !S.gastos.length) return false;
+  return !S.lastBackup || (Date.now()-S.lastBackup) > 7*864e5;
+}
+function viewMais(){
+  const lb = S.lastBackup ? new Date(S.lastBackup).toLocaleDateString('pt-BR') : 'nunca';
+  return `<h2>Opções</h2><p class="sub">Cópia de segurança e planilha.</p>
+  <div class="card"><b>Cópia de segurança</b>
+    <p class="sub" style="margin:6px 0 14px">Os dados ficam só neste celular. Faça uma cópia toda semana e guarde no WhatsApp ou e-mail. Última cópia: <b>${lb}</b>.</p>
+    <button class="btn block" data-act="backup">Fazer cópia de segurança</button>
+    <div style="height:8px"></div><button class="btn ghost block" data-act="restaurar">Recuperar de uma cópia</button></div>
+  <div class="card"><b>Levar para o Excel</b>
+    <p class="sub" style="margin:6px 0 14px">Planilha com todos os dias fechados e os gastos.</p>
+    <button class="btn ghost block" data-act="csv">Baixar planilha</button></div>
+  <div class="card"><b>Começar do zero</b><p class="sub" style="margin:6px 0 14px">Apaga todos os dias e gastos. A lista de produtos continua.</p>
+    <button class="btn danger block" data-act="zerar" data-confirm="1">Apagar lançamentos</button></div>
+  <details class="how"><summary>Como usar no dia a dia</summary>
+    <p><b>No fim do dia:</b> em "Fechar o dia", marque quanto sobrou de cada produto e toque em Salvar. Se fez uma quantidade diferente, toque em "fez".</p>
+    <p><b>Quando pagar algo:</b> em "Gasto", digite o valor e escolha o tipo.</p>
+    <p><b>Uma vez por semana:</b> olhe o Resumo e faça a cópia de segurança.</p>
+    <p><b>Para virar um app:</b> no navegador do celular, use "Adicionar à tela inicial".</p></details>`;
+}
+function baixar(nome, conteudo, tipo){
+  const blob = new Blob([conteudo], {type:tipo}), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+function gerarCSV(){
+  const f = v => v==null ? '' : (typeof v==='number' ? String(Math.round(v*100)/100).replace('.',',') : '"'+String(v).replace(/"/g,'""')+'"');
+  const L = [['Data','Tipo','Item','Fez','Sobrou','Vendeu','Preço','Custo','Vendas (R$)','Perda (R$)','Motivo sobra','Categoria gasto','Valor gasto (R$)'].join(';')];
+  const br = d => ddmm(d)+'/'+d.slice(0,4);
+  Object.keys(S.dias).sort().forEach(d=>{ const rec = S.dias[d];
+    for (const k in rec.itens){ const it = rec.itens[k], c = calcIt(k,it), p = P(k)||{};
+      L.push([br(d),'Produção',p.nome||k,it.fez,it.sobra||0,c.vend,it.preco??p.preco,it.custo??p.custo,c.rec,c.perda,
+        it.sobra ? (MOTIVOS.find(m=>m[0]===(it.motivo||'nv'))||[])[1] : '','',''].map(f).join(';')); } });
+  [...S.gastos].sort((a,b)=>a.data.localeCompare(b.data)).forEach(g=>{
+    L.push([br(g.data),'Gasto',g.desc||'','','','','','','','','',catNome(g.cat),g.valor].map(f).join(';')); });
+  return '﻿' + L.join('\r\n');
+}
+
+/* ===== Eventos ===== */
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-act],[data-tab]'); if (!t) return;
+  if (t.dataset.tab){ tab = t.dataset.tab; prodEdit = null; render(); scrollTo(0,0); return; }
+  const a = t.dataset.act, id = t.dataset.id;
+  if (t.dataset.confirm && !t.classList.contains('armed')){
+    const txt = t.textContent; t.classList.add('armed'); t.textContent = 'Toque de novo para confirmar';
+    setTimeout(()=>{ if (t.isConnected){ t.classList.remove('armed'); t.textContent = txt; } }, 3500); return;
+  }
+  switch(a){
+    case 'inc': case 'dec': { const it = getDraft(diaSel).itens[id]; mudarQtd(id, t.dataset.f, (it[t.dataset.f]||0) + (a==='inc'?1:-1)); break; }
+    case 'abrirFez': {
+      const it = getDraft(diaSel).itens[id];
+      if (fezAberto.has(id)) { fezAberto.delete(id); } else { fezAberto.add(id); if (!it.fez){ it.fez = Math.max(1, (P(id)||{}).padrao||1); getDraft(diaSel).dirty = true; } }
+      redesenharDia(); break; }
+    case 'mot': { const dr = getDraft(diaSel); dr.itens[id].motivo = t.dataset.m; mudarQtd(id,'sobra',dr.itens[id].sobra); break; }
+    case 'prev': diaSel = addD(diaSel,-1); fezAberto.clear(); render(); break;
+    case 'next': if (diaSel < HOJE()){ diaSel = addD(diaSel,1); fezAberto.clear(); render(); } break;
+    case 'salvar': salvarDia(); break;
+    case 'cat': gastoCat = t.dataset.c; document.querySelectorAll('[data-act="cat"]').forEach(b=>b.classList.toggle('on', b===t)); break;
+    case 'lancar': {
+      const v = num($('#gValor').value), d = $('#gData').value || HOJE();
+      if (!v || v<=0){ toast('Digite o valor'); $('#gValor').focus(); return; }
+      if (!gastoCat){ toast('Escolha com o quê foi o gasto'); return; }
+      S.gastos.push({id:uid(), data:d, valor:Math.round(v*100)/100, cat:gastoCat, desc:$('#gDesc').value.trim()});
+      save(); toast('Gasto lançado · '+brl(v)); gastoCat = null; render(); break; }
+    case 'delGasto':
+      if (!t.classList.contains('armed')){ t.classList.add('armed'); t.textContent='Confirmar'; setTimeout(()=>{ if(t.isConnected){t.classList.remove('armed'); t.textContent='Apagar';} },3000); return; }
+      S.gastos = S.gastos.filter(g=>g.id!==id); save(); render(); toast('Gasto apagado'); break;
+    case 'per': periodo = t.dataset.p; render(); break;
+    case 'irProdutos': tab = 'produtos'; render(); scrollTo(0,0); break;
+    case 'novoProd': prodEdit = 'novo'; emojiSel = null; render(); scrollTo(0,0); break;
+    case 'editProd': prodEdit = id; emojiSel = null; render(); { const f = $('#formProd'); if (f) f.scrollIntoView({block:'center'}); } break;
+    case 'emoji': emojiSel = t.dataset.e; document.querySelectorAll('[data-act="emoji"]').forEach(b=>b.classList.toggle('on', b===t)); break;
+    case 'cancelProd': prodEdit = null; render(); break;
+    case 'salvarProd': {
+      const nome = $('#fNome').value.trim(); if (!nome){ toast('Digite o nome'); return; }
+      const dados = {emoji:emojiSel||'🍞', nome, preco:num($('#fPreco').value), custo:num($('#fCusto').value), padrao:Math.max(0,parseInt($('#fPadrao').value)||0), ativo:$('#fAtivo').checked};
+      if (id) Object.assign(P(id), dados); else S.produtos.push({id:'p'+uid(), ...dados});
+      for (const d in drafts) if (!drafts[d].dirty) delete drafts[d];
+      save(); prodEdit = null; render(); toast('Produto salvo'); break; }
+    case 'backup':
+      S.lastBackup = Date.now(); save();
+      baixar('madureira_copia_'+HOJE()+'.json', JSON.stringify(S), 'application/json');
+      render(); toast('Cópia gerada · guarde o arquivo'); break;
+    case 'restaurar': $('#fileRestore').click(); break;
+    case 'csv': baixar('madureira_lancamentos_'+HOJE()+'.csv', gerarCSV(), 'text/csv;charset=utf-8'); break;
+    case 'zerar':
+      S.dias = {}; S.gastos = []; for (const d in drafts) delete drafts[d];
+      save(); render(); toast('Lançamentos apagados'); break;
+  }
+});
+$('#btnMais').addEventListener('click', ()=>{ tab = 'mais'; render(); scrollTo(0,0); });
+document.addEventListener('change', e=>{ const t = e.target; if (t.matches('.step input')) mudarQtd(t.dataset.id, t.dataset.f, parseInt(t.value)||0); });
+document.addEventListener('focusin', e=>{ if (e.target.matches('.step input')) e.target.select(); });
+document.addEventListener('pointerover', e=>{ const h = e.target.closest('svg.chart .hit'); if (h && e.pointerType==='mouse') setCap(+h.dataset.i); });
+document.addEventListener('pointerdown', e=>{ const h = e.target.closest('svg.chart .hit'); if (h) setCap(+h.dataset.i); });
+document.addEventListener('pointerout', e=>{ if (e.target.closest('svg.chart') && e.pointerType==='mouse' && !e.relatedTarget?.closest?.('svg.chart')) setCap(null); });
+$('#fileRestore').addEventListener('change', e=>{
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try { const d = JSON.parse(rd.result); if (!d.produtos || !d.dias || !d.gastos) throw 0;
+      S = d; save(); for (const k in drafts) delete drafts[k]; tab = 'dia'; render(); toast('Dados recuperados');
+    } catch(err){ toast('Esse arquivo não é uma cópia válida'); }
+    e.target.value = '';
+  };
+  rd.readAsText(f);
+});
+render();
+</script>
+</body>
+</html>
